@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const User = require('../models/User')
+const Order = require('../models/Orders')
 const { body, validationResult } = require('express-validator');
 
 const bcrypt =require("bcrypt");
@@ -15,7 +16,11 @@ router.post("/createuser", [
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.send({ errors: errors.array() });
+            return res.send({ errors: "enter valid credentials"});
+        }
+        let userData = await User.findOne({ 'email':req.body.email});
+        if (userData) {
+            return res.send({ errors: "This email is already registered" });
         }
         const salt=await bcrypt.genSalt(10);
         let secpassword = await bcrypt.hash(req.body.password,salt);
